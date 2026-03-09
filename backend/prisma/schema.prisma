@@ -1,14 +1,123 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =======================
+// AUTENTICACIÓN Y USUARIOS
+// =======================
+enum Role {
+  OWNER
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CUSTOMER)
+  
+  profile   Profile?
+  orders    Order[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  phone     String?
+  address   String?
+  avatarUrl String?
+}
+
+// =======================
+// CONFIGURACIÓN DINÁMICA DE LA APP
+// =======================
+model AppConfig {
+  id               String   @id @default(uuid())
+  logoUrl          String?
+  bannerUrl        String?
+  primaryColor     String   @default("#000000") // Código Hex
+  secondaryColor   String   @default("#ffffff") // Código Hex
+  animationType    String   @default("fade")    // Ej: 'fade', 'slide', 'scale'
+  
+  updatedAt        DateTime @updatedAt
+}
+
+// =======================
+// CATÁLOGO Y PRODUCTOS
+// =======================
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  products    Product[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  sku         String?     @unique
+  name        String
+  description String
+  price       Float
+  stock       Int         @default(0)
+  images      String[]    // URLs de imágenes
+  
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  
+  orderItems  OrderItem[]
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// =======================
+// PEDIDOS Y CARRITO (Estilo Amazon)
+// =======================
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  
+  status      OrderStatus @default(PENDING)
+  totalAmount Float
+  
+  items       OrderItem[]
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Float   // Precio histórico al momento de la compra
 }
