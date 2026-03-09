@@ -1,10 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --primary-color: #000000;
-  --secondary-color: #ffffff;
+@theme {
+  --color-primary: var(--primary-color, #000000);
+  --color-secondary: var(--secondary-color, #ffffff);
+
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-slide-up: slideUp 0.5s ease-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }
 
 body {
@@ -14,11 +37,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Estilos Amazon-like para botones premium */
+/* Clases de utilidad personalizadas */
 .btn-primary {
   @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all hover:opacity-90 active:scale-95 disabled:bg-gray-400;
 }
 
 .card {
   @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow;
+}
+
+/* Variables CSS Root */
+:root {
+  --primary-color: #000000;
+  --secondary-color: #ffffff;
 }

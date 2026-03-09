@@ -6,9 +6,9 @@ const prisma = require('../utils/prisma');
  */
 exports.getAppConfig = async (req, res) => {
     try {
+        if (!prisma) throw new Error('Prisma no inicializado');
         const config = await prisma.appConfig.findFirst();
         if (!config) {
-            // Retornar valores por defecto si no existe configuración en DB
             return res.json({
                 primaryColor: "#000000",
                 secondaryColor: "#ffffff",
@@ -19,7 +19,14 @@ exports.getAppConfig = async (req, res) => {
         }
         res.json(config);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener la configuración', detalles: error.message });
+        console.warn('Usando configuración por defecto (DB no conectada)');
+        res.json({
+            primaryColor: "#000000",
+            secondaryColor: "#ffffff",
+            animationType: "fade",
+            logoUrl: null,
+            bannerUrl: null
+        });
     }
 };
 

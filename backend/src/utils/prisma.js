@@ -1,8 +1,17 @@
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+let prisma;
+
+try {
+    prisma = new PrismaClient({
+        log: ['error'],
+    });
+} catch (error) {
+    console.error('Error al inicializar Prisma Client:', error.message);
+}
 
 /**
  * @module PrismaClient
- * @description Exporta una instancia única de PrismaClient para ser usada en toda la aplicación.
+ * @description Exporta una instancia de PrismaClient con manejo básico de errores de inicialización.
  */
 module.exports = prisma;
