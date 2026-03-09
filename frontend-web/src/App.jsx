@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useConfigStore } from './store/useConfigStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import Catalog from './pages/Catalog';
+import Login from './pages/Login';
+import AdminPanel from './pages/AdminPanel';
+import AIAgent from './pages/AIAgent';
+
+// Componente Home consolidado
+const Home = () => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="w-full"
+  >
+    <Hero />
+    {/* Otras secciones irán aquí */}
+  </motion.div>
+);
+
+const App = () => {
+  const { fetchConfig } = useConfigStore();
+
+  useEffect(() => {
+    fetchConfig();
+  }, [fetchConfig]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/catalogo" element={<Catalog />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/orientacion" element={<AIAgent />} />
+          </Routes>
+        </AnimatePresence>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </Router>
+  );
+};
 
-export default App
+export default App;
